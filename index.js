@@ -1,7 +1,65 @@
+const net = require("net");
+
 let controller;
 let preferenceMessagePort = undefined;
 
-let myFirstVariable = false;
+let receiverPort;
+let isReceiverConnected = false;
+let transmitPort;
+let isTransmitConnected = false;
+
+function destroyReceiver() {
+  if (receiverPort) {
+    receiverPort.destroySoon();
+    receiverPort = undefined;
+    isReceiverConnected = false;
+    notifyStatusChange();
+  }
+}
+
+function destroyTransmit() {
+  if (transmitPort) {
+    transmitPort.destroySoon();
+    transmitPort = undefined;
+    isTransmitConnected = true;
+    notifyStatusChange();
+  }
+}
+
+function createReceiverPort() {
+  destroyReceiver();
+  receiverPort = new net.Socket();
+
+  receiverPort.connect(23111, "127.0.0.1", () => {
+    isReceiverConnected = true;
+    notifyStatusChange();
+  });
+  receiverPort.on("data", handlePortMessage);
+  receiverPort.on("error", console.error);
+  receiverPort.on("close", () => {
+    isReceiverConnected = false;
+    notifyStatusChange();
+  });
+}
+
+function createTransmitPort() {
+  destroyTransmit();
+  transmitPort = new net.Socket();
+
+  transmitPort.connect(23110, "127.0.0.1", () => {
+    isTransmitConnected = true;
+    notifyStatusChange();
+  });
+  transmitPort.on("error", console.error);
+  transmitPort.on("close", () => {
+    isTransmitConnected = false;
+    notifyStatusChange();
+  });
+}
+
+function handlePortMessage(data) {
+  console.log(`LIGHTROOM DATA: ${data.toString()}`);
+}
 
 exports.loadPackage = async function (gridController, persistedData) {
   controller = gridController;
@@ -11,8 +69,8 @@ exports.loadPackage = async function (gridController, persistedData) {
     info: {
       actionId: 0,
       rendering: "standard",
-      category: "template",
-      color: "#5865F2",
+      category: "lightroom",
+      color: "#000e69",
       icon: "<div />",
       blockIcon: "<div />",
       selectable: true,
@@ -20,14 +78,15 @@ exports.loadPackage = async function (gridController, persistedData) {
       hideIcon: false,
       type: "single",
       toggleable: true,
-      short: "xta",
-      displayName: "Template Action",
-      defaultLua: 'gps("package-svelte-template", val)',
-      actionComponent: "template-action",
+      short: "xlip",
+      displayName: "Set Image Property",
+      defaultLua: 'gps("package-lightroom", "rating", val)',
+      actionComponent: "image-property-action",
     },
   });
 
-  myFirstVariable = persistedData?.myFirstVariable ?? false;
+  createReceiverPort();
+  createTransmitPort();
 };
 
 exports.unloadPackage = async function () {
@@ -35,6 +94,8 @@ exports.unloadPackage = async function () {
     type: "remove-action",
     actionId: 0,
   });
+  destroyReceiver();
+  destroyTransmit();
 };
 
 exports.addMessagePort = async function (port, senderId) {
@@ -45,15 +106,9 @@ exports.addMessagePort = async function (port, senderId) {
       preferenceMessagePort = undefined;
     });
     port.on("message", (e) => {
-      console.log({ e });
-      if (e.data.type === "set-setting") {
-        myFirstVariable = e.data.myFirstVariable;
-        controller.sendMessageToEditor({
-          type: "persist-data",
-          data: {
-            myFirstVariable,
-          },
-        });
+      if (e.data.type === "reconnect") {
+        createReceiverPort();
+        createTransmitPort();
       }
     });
     port.start();
@@ -62,12 +117,14 @@ exports.addMessagePort = async function (port, senderId) {
 };
 
 exports.sendMessage = async function (args) {
-  console.log(args); //Can be seen in Editor logs
+  let request = args.join(",");
+  transmitPort.write(`${request}\n`);
 };
 
 function notifyStatusChange() {
   preferenceMessagePort?.postMessage({
     type: "client-status",
-    myFirstVariable,
+    isReceiverConnected,
+    isTransmitConnected,
   });
 }

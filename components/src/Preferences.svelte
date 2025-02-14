@@ -1,5 +1,5 @@
 <svelte:options
-  customElement={{ tag: "template-preference", shadow: "none" }}
+  customElement={{ tag: "lightroom-preference", shadow: "none" }}
 />
 
 <script>
@@ -8,31 +8,25 @@
     BlockBody,
     BlockTitle,
     MeltCheckbox,
+    MoltenButton,
   } from "@intechstudio/grid-uikit";
   import { onMount } from "svelte";
 
   // @ts-ignore
   const messagePort = createPackageMessagePort(
-    "package-svelte-template",
+    "package-lightroom",
     "preferences"
   );
 
-  let myFirstVariable = false;
-
-  $: myFirstVariable, handleDataChange();
-
-  function handleDataChange() {
-    messagePort.postMessage({
-      type: "set-setting",
-      myFirstVariable,
-    });
-  }
+  let isReceiverConnected = false;
+  let isTransmitConnected = false;
 
   onMount(() => {
     messagePort.onmessage = (e) => {
       const data = e.data;
       if (data.type === "client-status") {
-        myFirstVariable = data.myFirstVariable;
+        isReceiverConnected = data.isReceiverConnected;
+        isTransmitConnected = data.isTransmitConnected;
       }
     };
     messagePort.start();
@@ -42,17 +36,22 @@
   });
 </script>
 
-<main-app>
+<lightroom-app>
   <div class="px-4">
     <Block>
-      <BlockTitle>Template Package</BlockTitle>
+      <BlockTitle>Lightroom Package</BlockTitle>
       <BlockBody>
-        Test variable
-        <MeltCheckbox
-          title={"This is a persistent variable"}
-          bind:target={myFirstVariable}
+        Receiver connected: {isReceiverConnected}<br />
+        Transmit connected: {isTransmitConnected}<br />
+        <MoltenButton
+          title="Reconnect ports"
+          click={() => {
+            messagePort.postMessage({
+              type: "reconnect",
+            });
+          }}
         />
       </BlockBody>
     </Block>
   </div>
-</main-app>
+</lightroom-app>
