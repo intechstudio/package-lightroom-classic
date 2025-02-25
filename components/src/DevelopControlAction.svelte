@@ -1,48 +1,24 @@
 <svelte:options
-  customElement={{ tag: "image-property-action", shadow: "none" }}
+  customElement={{ tag: "develop-control-action", shadow: "none" }}
 />
 
 <script>
   import { MeltCombo } from "@intechstudio/grid-uikit";
   import { onMount } from "svelte";
+  import suggestions from "./develop-control-suggestions.js";
   let parameterCode = "";
   let parameterValue = "";
   let currentCodeValue = "";
   let ref;
   let isInitialized = false;
 
-  $: parameterValueSuggestions = {
-    rating: [
-      { info: "Increase", value: "+1" },
-      { info: "Decrease", value: "-1" },
-      ...Array(5)
-        .fill()
-        .map((_, i) => {
-          return { info: `Set to ${i + 1}`, value: `${i + 1}` };
-        }),
-    ],
-    flag: [
-      { info: "Pick", value: "pick" },
-      { info: "Reject", value: "reject" },
-      { info: "Remove flag", value: "remove" },
-    ],
-    color: [
-      { info: "Red", value: "red" },
-      { info: "Yellow", value: "yellow" },
-      { info: "Green", value: "green" },
-      { info: "Blue", value: "blue" },
-      { info: "Purple", value: "purple" },
-      { info: "None", value: "none" },
-    ],
-  }[parameterCode];
-
   function handleConfigUpdate(config) {
-    const regex = /^gps\("package-lightroom", *"(.*?)", *"(.*?)"\)$/;
+    const regex = /^gps\("package-lightroom", "develop", *"(.*?)", *(.*?)\)$/;
     if (currentCodeValue != config.script) {
       currentCodeValue = config.script;
       const match = config.script.match(regex);
       if (match) {
-        parameterCode = match[1] ?? "rating";
+        parameterCode = match[1] ?? "Temperature";
         parameterValue = match[2] ?? "val";
         isInitialized = true;
       }
@@ -61,7 +37,7 @@
     parameterValue,
     isInitialized &&
       (function () {
-        var code = `gps("package-lightroom", "${parameterCode}", "${parameterValue}")`;
+        var code = `gps("package-lightroom", "develop", "${parameterCode}", ${parameterValue})`;
         if (currentCodeValue != code) {
           currentCodeValue = code;
           const event = new CustomEvent("updateCode", {
@@ -75,7 +51,7 @@
       })();
 </script>
 
-<image-property
+<develop-control
   class="{$$props.class} flex flex-col w-full pb-2 px-2 pointer-events-auto"
   bind:this={ref}
 >
@@ -86,11 +62,7 @@
         bind:value={parameterCode}
         size={"full"}
         searchable={true}
-        suggestions={[
-          { info: "Rating", value: "rating" },
-          { info: "Flag", value: "flag" },
-          { info: "Color Label", value: "color" },
-        ]}
+        {suggestions}
       />
     </div>
     <div class="w-1/2">
@@ -98,8 +70,7 @@
         title={"Parameter value"}
         bind:value={parameterValue}
         size={"full"}
-        suggestions={parameterValueSuggestions}
       />
     </div>
   </div>
-</image-property>
+</develop-control>
