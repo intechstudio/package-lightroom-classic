@@ -1,0 +1,1 @@
+_G.running = false -- terminate run loop

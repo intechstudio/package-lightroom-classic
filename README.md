@@ -9,5 +9,3 @@ https://akrabat.com/writing-a-lightroom-classic-plug-in/
 3. "print" debugging -> Under macOS, use console with filter for Lightroom process to view debug messages
 4. Dubug on windows -> page 190 in SDK guide, windbg
 5. Automatic plugin load -> page 30 in SDK guide
-
-

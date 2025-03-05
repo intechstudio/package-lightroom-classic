@@ -1,7 +1,7 @@
 {
-  "name": "package-svelte-template",
+  "name": "package-lightroom",
   "version": "1.0.0",
-  "description": "template Package",
+  "description": "Lightroom Package",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -17,7 +17,7 @@
   "license": "ISC",
   "grid_editor": {
     "componentsPath": "components/dist/components.js",
-    "preferenceComponent": "template-preference"
+    "preferenceComponent": "lightroom-preference"
   },
   "devDependencies": {
     "prettier": "2.8.8",

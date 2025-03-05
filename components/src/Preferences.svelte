@@ -1,5 +1,5 @@
 <svelte:options
-  customElement={{ tag: "template-preference", shadow: "none" }}
+  customElement={{ tag: "lightroom-preference", shadow: "none" }}
 />
 
 <script>
@@ -8,31 +8,39 @@
     BlockBody,
     BlockTitle,
     MeltCheckbox,
+    MoltenButton,
+    MeltCombo
   } from "@intechstudio/grid-uikit";
   import { onMount } from "svelte";
 
   // @ts-ignore
   const messagePort = createPackageMessagePort(
-    "package-svelte-template",
+    "package-lightroom",
     "preferences"
   );
 
-  let myFirstVariable = false;
+  let isReceiverConnected = false;
+  let isTransmitConnected = false;
+  let messageQueTimeout = "180";
+  let isInitialized = false;
 
-  $: myFirstVariable, handleDataChange();
+  $: messageQueTimeout, updatePackage() 
 
-  function handleDataChange() {
+  function updatePackage(){
     messagePort.postMessage({
-      type: "set-setting",
-      myFirstVariable,
-    });
+      type: "update",
+      messageQueTimeout: Number(messageQueTimeout),
+    })
   }
 
   onMount(() => {
     messagePort.onmessage = (e) => {
       const data = e.data;
       if (data.type === "client-status") {
-        myFirstVariable = data.myFirstVariable;
+        isReceiverConnected = data.isReceiverConnected;
+        isTransmitConnected = data.isTransmitConnected;
+        messageQueTimeout = String(data.messageQueTimeout);
+        isInitialized = true;
       }
     };
     messagePort.start();
@@ -42,17 +50,17 @@
   });
 </script>
 
-<main-app>
-  <div class="px-4">
+<lightroom-app>
+  <div class="px-4 bg-secondary rounded-lg">
     <Block>
-      <BlockTitle>Template Package</BlockTitle>
+      <BlockTitle>Lightroom Package</BlockTitle>
       <BlockBody>
-        Test variable
-        <MeltCheckbox
-          title={"This is a persistent variable"}
-          bind:target={myFirstVariable}
-        />
+        Receiver connected: {isReceiverConnected}<br />
+        Transmit connected: {isTransmitConnected}<br />
       </BlockBody>
+      <MeltCombo
+        title="Message que timeout"
+        bind:value={messageQueTimeout} />
     </Block>
   </div>
-</main-app>
+</lightroom-app>

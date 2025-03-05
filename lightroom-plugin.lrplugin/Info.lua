@@ -1,11 +1,32 @@
 return {
     VERSION = { major=1, minor=0, revision=0, },
-    LrSdkVersion = 9.0, --required!
-    LrSdkMinimumVersion = 4.0,
-    LrToolkitIdentifier = "com.intechstudio.hello",  --required!
-    LrPluginName = "Hello",  --required!
-    LrInitPlugin="Init.lua",
-    LrExportMenuItems = { title = 'My &Plugin', file = 'dialog.lua' }
+    LrSdkVersion = 6.0, --required!
+    LrSdkMinimumVersion = 6.0,
+    LrToolkitIdentifier = "com.intechstudio.grideditor",  --required!
+    LrPluginName = "Grid Editor",  --required!
+    LrInitPlugin="Start.lua",
+    LrForceInitPlugin  = true,
+    LrShutdownApp = "Shutdown.lua",
+    LrHelpMenuItems = { 
+      { 
+        title = 'About Grid', 
+        file = 'MenuItemAbout.lua' 
+      }
+    },
+    LrExportMenuItems = {
+      {
+        title = "Start",
+        file = "Start.lua",
+      },
+      {
+        title = "Stop",
+        file = "Stop.lua",
+      },
+      {
+        title = "Test",
+        file = "Test.lua",
+      },
+    }
   }
 
 -- return {
