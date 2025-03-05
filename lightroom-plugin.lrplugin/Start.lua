@@ -6,15 +6,17 @@ local LrLogger = import 'LrLogger'
 local LrFunctionContext = import "LrFunctionContext"
 local logger = LrLogger('GridEditor')
 logger:enable("logfile")
-logger:trace('9')
+logger:trace('10')
 
 require 'ProcessMessage'
 
 local receiverSocket
 local receiverPort = 23110
 local receiverConnected = false
-local receiverPortFilePath
-local receiverShutdown = false
+
+local senderSocket
+local senderPort = 23111
+local senderConnected = false
 
 local function createReceiverSocket(context)
   if receiverSocket ~= nil then
@@ -34,13 +36,11 @@ local function createReceiverSocket(context)
     onConnected = function(socket, port)
       logger:trace('Receiver socket connected: ' .. port)
       receiverConnected = true
-      --createSenderSocket(context)
     end,
     onClosed = function(socket)
       logger:trace('Receiver socket closed: ' .. receiverPort)
       receiverConnected = false
 
-      --senderSocket:close()
       if _G.running then
         receiverSocket:reconnect()
       end
@@ -56,15 +56,11 @@ local function createReceiverSocket(context)
     end,
 
     onMessage = function(socket, message)
-      handleMessage(message)
+      handleMessage(message, senderSocket)
     end,
   }
   return
 end
-
-local senderSocket
-local senderPort = 23111
-local senderConnected = false
 
 local function createSenderSocket(context)
   if senderSocket ~= nil then
@@ -114,12 +110,11 @@ LrTasks.startAsyncTask(function()
     _G.running = true
     createReceiverSocket(context)
     createSenderSocket(context)
-    while _G.running do 
-      if senderConnected then
-        senderSocket:send("Hello from Lightroom")
-      end
+    while _G.running do
       LrTasks.sleep(0.5)
     end
+    receiverSocket:close()
+    senderSocket:close()
     _G.shutdown = true
   end)
 end)

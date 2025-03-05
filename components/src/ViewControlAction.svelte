@@ -60,6 +60,24 @@
       suggestions={[
         { info: "Next Photo", value: "next-photo" },
         { info: "Previous Photo", value: "previous-photo" },
+        { info: "Undo", value: "undo" },
+        { info: "Redo", value: "redo" },
+        { info: "Create Virtual Copy", value: "create-virtual" },
+        { info: "Toogle Zoom", value: "zoom-toggle" },
+        { info: "Zoom In", value: "zoom-in" },
+        { info: "Zoom Out", value: "zoom-out" },
+        { info: "Zoom to 100%", value: "zoom-onetoone" },
+        { info: "Copy Image Settings", value: "copy" },
+        { info: "Paste Image Settings", value: "paste" },
+        { info: "Reset Image Settings", value: "reset" },
+        { info: "Reset Image Settings", value: "selectall" },
+        { info: "Reset Image Settings", value: "goto-remove" },
+        { info: "Reset Image Settings", value: "goto-mask" },
+        { info: "Reset Image Settings", value: "goto-crop" },
+        { info: "Reset Image Settings", value: "back" },
+        { info: "Reset Image Settings", value: "enhance" },
+        { info: "Reset Image Settings", value: "export" },
+        { info: "Reset Image Settings", value: "import" },
       ]}
     />
   </div>
