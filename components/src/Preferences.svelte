@@ -9,7 +9,7 @@
     BlockTitle,
     MeltCheckbox,
     MoltenButton,
-    MeltCombo
+    MeltCombo,
   } from "@intechstudio/grid-uikit";
   import { onMount } from "svelte";
 
@@ -24,13 +24,13 @@
   let messageQueTimeout = "180";
   let isInitialized = false;
 
-  $: messageQueTimeout, updatePackage() 
+  $: messageQueTimeout, updatePackage();
 
-  function updatePackage(){
+  function updatePackage() {
     messagePort.postMessage({
       type: "update",
       messageQueTimeout: Number(messageQueTimeout),
-    })
+    });
   }
 
   onMount(() => {
@@ -58,9 +58,7 @@
         Receiver connected: {isReceiverConnected}<br />
         Transmit connected: {isTransmitConnected}<br />
       </BlockBody>
-      <MeltCombo
-        title="Message que timeout"
-        bind:value={messageQueTimeout} />
+      <MeltCombo title="Message que timeout" bind:value={messageQueTimeout} />
     </Block>
   </div>
 </lightroom-app>

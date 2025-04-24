@@ -41,7 +41,7 @@ function handleMessage(message, senderSocket)
   if command == nil then
     command = message
   end
-  logger:trace('COMMAND2 ' .. command)
+  logger:trace('COMMAND ' .. command)
   if command == "rating" then
     local ratingValue = message:match("^rating,%s*(.*)")
     if ratingValue == "+1" then
@@ -73,10 +73,15 @@ function handleMessage(message, senderSocket)
     LrSelection.previousPhoto()
     sendCurrentActivePhoto(senderSocket);
   elseif command == "develop" then
-    local parameterName, parameterValue = message:match("^develop,%s*(.*),%s*(.*)")
+    local parameterName, parameterValue, isRelative = message:match("^develop,%s*(.*),%s*(.*),%s*(.*)")  
     LrDevelopController.startTracking(parameterName)
     LrApplicationView.switchToModule("develop")
-    LrDevelopController.setValue(parameterName, tonumber(parameterValue))
+    local nextValue = tonumber(parameterValue)
+    if isRelative == "1" then
+      local currentValue = LrDevelopController.getValue(parameterName);
+      nextValue = nextValue + currentValue
+    end
+    LrDevelopController.setValue(parameterName, tonumber(nextValue))
   elseif command == "remove" then
     local parameterName, parameterValue = message:match("^remove,%s*(.*),%s*(.*)")
     if parameterName == "size" then

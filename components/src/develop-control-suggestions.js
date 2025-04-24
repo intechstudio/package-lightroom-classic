@@ -166,4 +166,6 @@ export default [
   { info: "Lens Blur Cat Eye Effect", value: "LensBlurCatEye" },
   { info: "Lens Blur Highlights Boost", value: "LensBlurHighlightsBoost" },
   { info: "Lens Blur Focal Range", value: "LensBlurFocalRange" },
+
+  { info: "Zoom Crop Angle", value: "straightenAngle" },
 ];

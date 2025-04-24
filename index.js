@@ -12,11 +12,11 @@ let transmitPort;
 let isTransmitConnected = false;
 let transmitConnectTimeoutId;
 
-let photosToBeSent = []
+let photosToBeSent = [];
 let currentSentIndex = 0;
 let messageQueTimeout = 180;
 let MAX_MESSAGE_SIZE = 390;
-function sendNextPhotosBatch(){
+function sendNextPhotosBatch() {
   /*let dataString = "{";
   let isFirst = true;
   photosToBeSent.forEach((photo) => {
@@ -32,17 +32,23 @@ function sendNextPhotosBatch(){
   let names = photosToBeSent.map((photo) => {
     let originalName = photo.name;
     let extensionIndex = originalName.lastIndexOf(".");
-    return originalName.substring(Math.max(0, extensionIndex - 4), extensionIndex);
+    return originalName.substring(
+      Math.max(0, extensionIndex - 4),
+      extensionIndex
+    );
   });
-  let script = `LrImportNames(${JSON.stringify(ids).replace("[", "{").replace("]", "}")}, ${JSON.stringify(names).replace("[", "{").replace("]", "}")})`
-  console.log({script});
-  console.log("SENDING EXECUTE")
+  let script = `LrImportNames(${JSON.stringify(ids)
+    .replace("[", "{")
+    .replace("]", "}")}, ${JSON.stringify(names)
+    .replace("[", "{")
+    .replace("]", "}")})`;
+  console.log({ script });
+  console.log("SENDING EXECUTE");
   controller.sendMessageToEditor({
     type: "execute-lua-script",
     script,
   });
 }
-
 
 function destroyReceiver() {
   if (receiverPort) {
@@ -104,7 +110,7 @@ let messageHandlerId;
 let messageGroupQue = [];
 let messageGroupData = new Map();
 
-function scheduleMessage(){
+function scheduleMessage() {
   let nextGroupId = messageGroupQue.shift();
   if (!nextGroupId) return;
 
@@ -118,19 +124,25 @@ function scheduleMessage(){
 function handlePortMessage(data) {
   console.log(`LIGHTROOM DATA: ${data.toString()}`);
   dataMessages = data.toString().split("\n");
-  for (let messageString of dataMessages){
+  for (let messageString of dataMessages) {
     try {
-      console.log(`HANDLING MESSAGE: ${messageString}`)
+      console.log(`HANDLING MESSAGE: ${messageString}`);
       let message = JSON.parse(messageString);
-      if (message.type == "photos-name-result"){
-        console.log("INSIDE MESSAGE HANDLER")
+      if (message.type == "photos-name-result") {
+        console.log("INSIDE MESSAGE HANDLER");
         photosToBeSent = message.result;
         currentSentIndex = 0;
         sendNextPhotosBatch();
       }
-      if (message.type == "active-photo-result"){
+      if (message.type == "active-photo-result") {
         let photo = message.photo;
-        let script = `LrImportActive(${photo.id},"${photo.isoSpeed}","${photo.aperture.toString().replace("ƒ", "f")}","${photo.shutterSpeed}","${photo.focalLength}",${photo.rating},"${photo.flag == 1 ? "P" : (photo.flag == 0 ? "" : "R")}")`;
+        let script = `LrImportActive(${photo.id},"${
+          photo.isoSpeed
+        }","${photo.aperture.toString().replace("ƒ", "f")}","${
+          photo.shutterSpeed
+        }","${photo.focalLength}",${photo.rating},"${
+          photo.flag == 1 ? "P" : photo.flag == 0 ? "" : "R"
+        }")`;
         console.log(`SENDING: ${script}`);
         controller.sendMessageToEditor({
           type: "execute-lua-script",
@@ -141,7 +153,6 @@ function handlePortMessage(data) {
       console.error(error);
     }
   }
-  
 }
 
 let actionId = 0;
@@ -191,7 +202,7 @@ exports.loadPackage = async function (gridController, persistedData) {
   createLightroomAction({
     short: "xldc",
     displayName: "Develop Control",
-    defaultLua: 'gps("package-lightroom", "develop", "Temperature", val)',
+    defaultLua: 'gps("package-lightroom", "develop", "Temperature", val, 0)',
     actionComponent: "develop-control-action",
   });
 
@@ -205,7 +216,7 @@ exports.loadPackage = async function (gridController, persistedData) {
   createReceiverPort();
   createTransmitPort();
 
-  messageHandlerId = setInterval(scheduleMessage, 50)
+  messageHandlerId = setInterval(scheduleMessage, 50);
 };
 
 exports.unloadPackage = async function () {
@@ -239,36 +250,36 @@ exports.addMessagePort = async function (port, senderId) {
 
 exports.sendMessage = async function (args) {
   let messageGroupId = args[0];
-  if (messageGroupId == "back"){
+  if (messageGroupId == "back") {
     controller.sendMessageToEditor({
       type: "execute-lua-script",
-      script: 'gks(25,0,2,41)',
+      script: "gks(25,0,2,41)",
     });
     return;
   }
-  if (messageGroupId == "enhance"){
+  if (messageGroupId == "enhance") {
     controller.sendMessageToEditor({
       type: "execute-lua-script",
-      script: 'gks(25,1,1,1,1,1,4,0,2,12,1,0,4,1,0,1)',
+      script: "gks(25,1,1,1,1,1,4,0,2,12,1,0,4,1,0,1)",
     });
     return;
   }
-  if (messageGroupId == "export"){
+  if (messageGroupId == "export") {
     controller.sendMessageToEditor({
       type: "execute-lua-script",
-      script: 'gks(25,1,1,1,1,1,2,0,2,8,1,0,1,1,0,2)',
+      script: "gks(25,1,1,1,1,1,2,0,2,8,1,0,1,1,0,2)",
     });
     return;
   }
-  if (messageGroupId == "import"){
+  if (messageGroupId == "import") {
     controller.sendMessageToEditor({
       type: "execute-lua-script",
-      script: 'gks(25,1,1,1,1,1,2,0,2,12,1,0,2,1,0,1)',
+      script: "gks(25,1,1,1,1,1,2,0,2,12,1,0,2,1,0,1)",
     });
     return;
   }
   messageGroupData.set(messageGroupId, args);
-  if (!messageGroupQue.includes(messageGroupId)){
+  if (!messageGroupQue.includes(messageGroupId)) {
     messageGroupQue.push(messageGroupId);
   }
 };
@@ -278,6 +289,6 @@ function notifyStatusChange() {
     type: "client-status",
     isReceiverConnected,
     isTransmitConnected,
-    messageQueTimeout
+    messageQueTimeout,
   });
 }

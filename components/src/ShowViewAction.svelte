@@ -1,6 +1,4 @@
-<svelte:options
-  customElement={{ tag: "show-view-action", shadow: "none" }}
-/>
+<svelte:options customElement={{ tag: "show-view-action", shadow: "none" }} />
 
 <script>
   import { MeltCombo } from "@intechstudio/grid-uikit";
@@ -64,11 +62,17 @@
         { info: "Survey", value: "survey" },
         { info: "People", value: "people" },
         { info: "Develop Loupe", value: "develop_loupe" },
-        { info: "Develop Before After Horiz", value: "develop_before_after_horiz" },
-        { info: "Develop Before After Vert", value: "develop_before_after_vert" },
+        {
+          info: "Develop Before After Horiz",
+          value: "develop_before_after_horiz",
+        },
+        {
+          info: "Develop Before After Vert",
+          value: "develop_before_after_vert",
+        },
         { info: "Develop Before", value: "develop_before" },
         { info: "Develop Reference Horiz", value: "develop_reference_horiz" },
-        { info: "Develop Reference Vert", value: "develop_reference_vert" }
+        { info: "Develop Reference Vert", value: "develop_reference_vert" },
       ]}
     />
   </div>
