@@ -19,8 +19,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm i prettier --global
-          npm i prettier-plugin-svelte --global
+          npm ci
+          npm run format
           prettier --write .
           git status
           touch format_error.txt
