@@ -18,7 +18,7 @@
     "preference": "dist/components.js"
   },
   "dependencies": {
-    "@intechstudio/grid-uikit": "^1.20250224.1429",
+    "@intechstudio/grid-uikit": "^1.20250710.1451",
     "typescript": "^5.5.4",
     "ws": "^8.18.0"
   }

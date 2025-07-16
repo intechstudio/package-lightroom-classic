@@ -16,7 +16,7 @@
   // @ts-ignore
   const messagePort = createPackageMessagePort(
     "package-lightroom",
-    "preferences"
+    "preferences",
   );
 
   let isReceiverConnected = false;

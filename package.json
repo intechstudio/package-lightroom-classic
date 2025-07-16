@@ -1,6 +1,6 @@
 {
   "name": "package-lightroom",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Lightroom Package",
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,10 @@
   "license": "ISC",
   "grid_editor": {
     "componentsPath": "components/dist/components.js",
-    "preferenceComponent": "lightroom-preference"
+    "preferenceComponent": "lightroom-preference",
+    "shortDescription": "Control Lightroom Classic through Grid modules.",
+    "mainIcon": "lightroom-logo.svg",
+    "menuIcon": "lightroom-menu-icon.svg"
   },
   "devDependencies": {
     "prettier": "^3.5.3",

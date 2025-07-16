@@ -16,6 +16,7 @@ let photosToBeSent = [];
 let currentSentIndex = 0;
 let messageQueTimeout = 180;
 let MAX_MESSAGE_SIZE = 390;
+let transmitPortNumber = 0;
 function sendNextPhotosBatch() {
   /*let dataString = "{";
   let isFirst = true;
@@ -34,7 +35,7 @@ function sendNextPhotosBatch() {
     let extensionIndex = originalName.lastIndexOf(".");
     return originalName.substring(
       Math.max(0, extensionIndex - 4),
-      extensionIndex
+      extensionIndex,
     );
   });
   let script = `LrImportNames(${JSON.stringify(ids)
@@ -93,7 +94,7 @@ function createTransmitPort() {
   destroyTransmit();
   transmitPort = new net.Socket();
 
-  transmitPort.connect(23110, "127.0.0.1", () => {
+  transmitPort.connect(transmitPortNumber, "127.0.0.1", () => {
     isTransmitConnected = true;
     clearTimeout(transmitConnectTimeoutId);
     notifyStatusChange();
@@ -128,6 +129,11 @@ function handlePortMessage(data) {
     try {
       console.log(`HANDLING MESSAGE: ${messageString}`);
       let message = JSON.parse(messageString);
+      if (message.type == "receiver-port") {
+        console.log(`RECEIVING PORT: ${message.port}`);
+        transmitPortNumber = message.port;
+        createTransmitPort();
+      }
       if (message.type == "photos-name-result") {
         console.log("INSIDE MESSAGE HANDLER");
         photosToBeSent = message.result;
@@ -161,8 +167,8 @@ exports.loadPackage = async function (gridController, persistedData) {
   controller = gridController;
 
   let lightroomIconSvg = fs.readFileSync(
-    path.resolve(__dirname, "lightroom_icon.svg"),
-    { encoding: "utf-8" }
+    path.resolve(__dirname, "lightroom-action-icon.svg"),
+    { encoding: "utf-8" },
   );
 
   function createLightroomAction(overrides) {
@@ -214,7 +220,6 @@ exports.loadPackage = async function (gridController, persistedData) {
   });
 
   createReceiverPort();
-  createTransmitPort();
 
   messageHandlerId = setInterval(scheduleMessage, 50);
 };

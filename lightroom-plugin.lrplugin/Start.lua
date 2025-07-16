@@ -11,7 +11,7 @@ logger:trace('10')
 require 'ProcessMessage'
 
 local receiverSocket
-local receiverPort = 23110
+local receiverPort = 0
 local receiverConnected = false
 
 local senderSocket
@@ -23,15 +23,20 @@ local function createReceiverSocket(context)
     return
   end
   logger:trace('Creating receiver socket')
+  receiverPort = 0
   receiverSocket = LrSocket.bind
   {
     functionContext = context,
     address = "127.0.0.1",
-    port = receiverPort,
+    port = 0,
     mode = "receive",
     plugin = _PLUGIN,
     onConnecting = function(socket, port)
       logger:trace('Receiver socket connecting: ' .. port)
+      receiverPort = port
+      if senderConnected then
+        senderSocket:send('{"type":"receiver-port","port":'.. receiverPort .. '}\n')
+      end
     end,
     onConnected = function(socket, port)
       logger:trace('Receiver socket connected: ' .. port)
@@ -80,6 +85,9 @@ local function createSenderSocket(context)
       onConnected = function(socket, port)
         logger:trace('Sender socket connected: ' .. port)
         senderConnected = true
+        if senderPort ~= 0 then
+          senderSocket:send('{"type":"receiver-port","port":'.. receiverPort .. '}\n')
+        end
       end,
       onClosed = function(socket)
         logger:trace('Sender socket closed: ' .. senderPort)
