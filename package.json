@@ -1,5 +1,5 @@
 {
-  "name": "package-lightroom",
+  "name": "package-lightroom-classic",
   "version": "1.0.2",
   "description": "Lightroom Package",
   "main": "index.js",
@@ -13,7 +13,7 @@
     "build": "run-p build:*",
     "dev": "run-p dev:*"
   },
-  "author": "",
+  "author": "intechstudio",
   "license": "ISC",
   "grid_editor": {
     "componentsPath": "components/dist/components.js",

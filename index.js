@@ -192,30 +192,31 @@ exports.loadPackage = async function (gridController, persistedData) {
   }
 
   createLightroomAction({
-    short: "xlip",
+    short: "xlrip",
     displayName: "Set Image Property",
-    defaultLua: 'gps("package-lightroom", "rating", "+1")',
+    defaultLua: 'gps("package-lightroom-classic", "rating", "+1")',
     actionComponent: "image-property-action",
   });
 
   createLightroomAction({
-    short: "xlvc",
+    short: "xlrvc",
     displayName: "View Control",
-    defaultLua: 'gps("package-lightroom", "next-photo")',
+    defaultLua: 'gps("package-lightroom-classic", "next-photo")',
     actionComponent: "view-control-action",
   });
 
   createLightroomAction({
-    short: "xldc",
+    short: "xlrdc",
     displayName: "Develop Control",
-    defaultLua: 'gps("package-lightroom", "develop", "Temperature", val, 0)',
+    defaultLua:
+      'gps("package-lightroom-classic", "develop", "Temperature", val, 0)',
     actionComponent: "develop-control-action",
   });
 
   createLightroomAction({
-    short: "xlsv",
+    short: "xlrsv",
     displayName: "Show View",
-    defaultLua: 'gps("package-lightroom", "view", "loupe")',
+    defaultLua: 'gps("package-lightroom-classic", "view", "loupe")',
     actionComponent: "show-view-action",
   });
 

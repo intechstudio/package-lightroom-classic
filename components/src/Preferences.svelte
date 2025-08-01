@@ -15,7 +15,7 @@
 
   // @ts-ignore
   const messagePort = createPackageMessagePort(
-    "package-lightroom",
+    "package-lightroom-classic",
     "preferences",
   );
 
