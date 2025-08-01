@@ -15,7 +15,7 @@
 
   function handleConfigUpdate(config) {
     const regex =
-      /^gps\("package-lightroom", "develop", *"(.*?)", *(.*?), (1|0)\)$/;
+      /^gps\("package-lightroom-classic", "develop", *"(.*?)", *(.*?), (1|0)\)$/;
     if (currentCodeValue != config.script) {
       currentCodeValue = config.script;
       const match = config.script.match(regex);
@@ -41,7 +41,7 @@
     isRelativeMode,
     isInitialized &&
       (function () {
-        var code = `gps("package-lightroom", "develop", "${parameterCode}", ${parameterValue}, ${
+        var code = `gps("package-lightroom-classic", "develop", "${parameterCode}", ${parameterValue}, ${
           isRelativeMode ? 1 : 0
         })`;
         if (currentCodeValue != code) {

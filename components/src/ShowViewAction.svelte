@@ -9,7 +9,7 @@
   let isInitialized = false;
 
   function handleConfigUpdate(config) {
-    const regex = /^gps\("package-lightroom", "view", *"(.*?)"\)$/;
+    const regex = /^gps\("package-lightroom-classic", "view", *"(.*?)"\)$/;
     if (currentCodeValue != config.script) {
       currentCodeValue = config.script;
       const match = config.script.match(regex);
@@ -31,7 +31,7 @@
   $: parameterCode,
     isInitialized &&
       (function () {
-        var code = `gps("package-lightroom", "view", "${parameterCode}")`;
+        var code = `gps("package-lightroom-classic", "view", "${parameterCode}")`;
         if (currentCodeValue != code) {
           currentCodeValue = code;
           const event = new CustomEvent("updateCode", {
