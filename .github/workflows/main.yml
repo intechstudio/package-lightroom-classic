@@ -84,7 +84,7 @@ jobs:
         with:
           upload_url: ${{ needs.create-github-release.outputs.upload_url }}
           asset_path: package-archive.zip
-          asset_name: package-svelte-lightroom-${{ matrix.os }}.zip
+          asset_name: package-lightroom-classic-${{ matrix.os }}.zip
           asset_content_type: application/zip
   publish-release:
     needs: [build, create-github-release]

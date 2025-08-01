@@ -70,14 +70,13 @@
         { info: "Copy Image Settings", value: "copy" },
         { info: "Paste Image Settings", value: "paste" },
         { info: "Reset Image Settings", value: "reset" },
-        { info: "Reset Image Settings", value: "selectall" },
-        { info: "Reset Image Settings", value: "goto-remove" },
-        { info: "Reset Image Settings", value: "goto-mask" },
-        { info: "Reset Image Settings", value: "goto-crop" },
-        { info: "Reset Image Settings", value: "back" },
-        { info: "Reset Image Settings", value: "enhance" },
-        { info: "Reset Image Settings", value: "export" },
-        { info: "Reset Image Settings", value: "import" },
+        { info: "Select All Images", value: "selectall" },
+        { info: "Remove Tool", value: "goto-remove" },
+        { info: "Masking Tool", value: "goto-mask" },
+        { info: "Crop Tool", value: "goto-crop" },
+        // TODO: implement Export/Import via keyboard shortcuts (no API available)
+        // { info: "Export", value: "export" },
+        // { info: "Import", value: "import" },
       ]}
     />
   </div>
