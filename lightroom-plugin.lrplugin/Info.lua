@@ -7,6 +7,7 @@ return {
     LrInitPlugin="Start.lua",
     LrForceInitPlugin  = true,
     LrShutdownApp = "Shutdown.lua",
+	  LrDisablePlugin = "Stop.lua",
     LrHelpMenuItems = { 
       { 
         title = 'About Grid', 

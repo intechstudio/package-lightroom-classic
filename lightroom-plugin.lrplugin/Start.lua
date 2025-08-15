@@ -3,6 +3,7 @@ local LrTasks = import 'LrTasks'
 
 local LrSocket = import "LrSocket"
 local LrLogger = import 'LrLogger'
+local LrDate = import 'LrDate'
 local LrFunctionContext = import "LrFunctionContext"
 local logger = LrLogger('GridEditor')
 logger:enable("logfile")
@@ -17,6 +18,8 @@ local receiverConnected = false
 local senderSocket
 local senderPort = 23111
 local senderConnected = false
+
+local lastReceivedMessageTime = 0
 
 local function createReceiverSocket(context)
   if receiverSocket ~= nil then
@@ -45,22 +48,16 @@ local function createReceiverSocket(context)
     onClosed = function(socket)
       logger:trace('Receiver socket closed: ' .. receiverPort)
       receiverConnected = false
-
-      if _G.running then
-        receiverSocket:reconnect()
-      end
+      receiverPort = 0
     end,
     onError = function(socket, err)
       receiverConnected = false
-
+      socket:reconnect()
       logger:trace('Receiver socket %d error: %s', receiverPort, err)
-
-      if _G.running then
-        receiverSocket:reconnect()
-      end
     end,
 
     onMessage = function(socket, message)
+      lastReceivedMessageTime = LrDate.currentTime()
       handleMessage(message, senderSocket)
     end,
   }
@@ -85,28 +82,19 @@ local function createSenderSocket(context)
       onConnected = function(socket, port)
         logger:trace('Sender socket connected: ' .. port)
         senderConnected = true
-        if senderPort ~= 0 then
+        lastReceivedMessageTime = LrDate.currentTime()
+        if receiverPort ~= 0 then
           senderSocket:send('{"type":"receiver-port","port":'.. receiverPort .. '}\n')
         end
       end,
       onClosed = function(socket)
         logger:trace('Sender socket closed: ' .. senderPort)
         senderConnected = false
-        if _G.running then
-          socket:reconnect()
-        end
       end,
       onError = function(socket, err)
         logger:trace('Sender socket %d error: %s', senderPort, err)
         senderConnected = false
-
-        if string.sub(err, 1, string.len("failed to open")) == "failed to open" then
-          LrDialogs.showError("Plugin cannot connect to Editor!")
-          return
-        end
-        if _G.running then
-          socket:reconnect()
-        end
+        socket:reconnect()
       end,
   }
   return senderSocket
@@ -116,13 +104,19 @@ end
 LrTasks.startAsyncTask(function()
   LrFunctionContext.callWithContext('grideditor', function(context)
     _G.running = true
-    createReceiverSocket(context)
-    createSenderSocket(context)
     while _G.running do
-      LrTasks.sleep(0.5)
+      createReceiverSocket(context)
+      createSenderSocket(context)
+      while _G.running and ((not senderConnected) or (LrDate.currentTime() - lastReceivedMessageTime) < 5) do
+        LrTasks.sleep(0.5)
+      end
+      receiverSocket:close()
+      senderSocket:close()
+      receiverSocket = nil
+      senderSocket = nil
+      senderConnected = false
+      receiverConnected = false
     end
-    receiverSocket:close()
-    senderSocket:close()
     _G.shutdown = true
   end)
 end)

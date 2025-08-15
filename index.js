@@ -17,6 +17,9 @@ let currentSentIndex = 0;
 let messageQueTimeout = 180;
 let MAX_MESSAGE_SIZE = 390;
 let transmitPortNumber = 0;
+
+let packageShutDown = false;
+
 function sendNextPhotosBatch() {
   /*let dataString = "{";
   let isFirst = true;
@@ -52,26 +55,28 @@ function sendNextPhotosBatch() {
 }
 
 function destroyReceiver() {
+  clearTimeout(receiverConnectTimeoutId);
   if (receiverPort) {
-    receiverPort.destroySoon();
+    receiverPort.destroy();
     receiverPort = undefined;
     isReceiverConnected = false;
     notifyStatusChange();
   }
-  clearTimeout(receiverConnectTimeoutId);
 }
 
 function destroyTransmit() {
+  clearTimeout(transmitConnectTimeoutId);
   if (transmitPort) {
-    transmitPort.destroySoon();
+    transmitPort.destroy();
     transmitPort = undefined;
     isTransmitConnected = false;
     notifyStatusChange();
   }
-  clearTimeout(transmitConnectTimeoutId);
 }
 
 function createReceiverPort() {
+  if (packageShutDown) return;
+
   destroyReceiver();
   receiverPort = new net.Socket();
 
@@ -85,18 +90,20 @@ function createReceiverPort() {
   receiverPort.on("close", () => {
     isReceiverConnected = false;
     receiverConnectTimeoutId = setTimeout(createReceiverPort, 2000);
-    //destroyTransmit(); //Cant release socket from plugin side
     notifyStatusChange();
   });
 }
 
 function createTransmitPort() {
+  if (packageShutDown) return;
+
   destroyTransmit();
   transmitPort = new net.Socket();
 
   transmitPort.connect(transmitPortNumber, "127.0.0.1", () => {
     isTransmitConnected = true;
     clearTimeout(transmitConnectTimeoutId);
+    reschedulePingMessage();
     notifyStatusChange();
   });
   transmitPort.on("error", console.error);
@@ -111,6 +118,17 @@ let messageHandlerId;
 let messageGroupQue = [];
 let messageGroupData = new Map();
 
+let pingMessageTimeoutId;
+function reschedulePingMessage() {
+  clearTimeout(pingMessageTimeoutId);
+  pingMessageTimeoutId = setTimeout(sendPingMessage, 4000);
+}
+
+function sendPingMessage() {
+  transmitPort?.write(`1\n`); //Send keepalive message
+  reschedulePingMessage();
+}
+
 function scheduleMessage() {
   let nextGroupId = messageGroupQue.shift();
   if (!nextGroupId) return;
@@ -119,7 +137,8 @@ function scheduleMessage() {
   messageGroupData.delete(nextGroupId);
 
   let request = args.join(",");
-  transmitPort.write(`${request}\n`);
+  transmitPort?.write(`${request}\n`);
+  reschedulePingMessage();
 }
 
 function handlePortMessage(data) {
@@ -131,8 +150,10 @@ function handlePortMessage(data) {
       let message = JSON.parse(messageString);
       if (message.type == "receiver-port") {
         console.log(`RECEIVING PORT: ${message.port}`);
-        transmitPortNumber = message.port;
-        createTransmitPort();
+        if (transmitPortNumber !== message.port || !isTransmitConnected) {
+          transmitPortNumber = message.port;
+          createTransmitPort();
+        }
       }
       if (message.type == "photos-name-result") {
         console.log("INSIDE MESSAGE HANDLER");
@@ -164,6 +185,7 @@ function handlePortMessage(data) {
 let actionId = 0;
 
 exports.loadPackage = async function (gridController, persistedData) {
+  packageShutDown = false;
   controller = gridController;
 
   let lightroomIconSvg = fs.readFileSync(
@@ -226,6 +248,7 @@ exports.loadPackage = async function (gridController, persistedData) {
 };
 
 exports.unloadPackage = async function () {
+  packageShutDown = true;
   clearTimeout(messageHandlerId);
   while (actionId >= 0) {
     controller.sendMessageToEditor({
@@ -233,6 +256,9 @@ exports.unloadPackage = async function () {
       actionId: --actionId,
     });
   }
+  clearTimeout(transmitConnectTimeoutId);
+  clearTimeout(receiverConnectTimeoutId);
+  clearTimeout(pingMessageTimeoutId);
   destroyReceiver();
   destroyTransmit();
 };

@@ -53,10 +53,24 @@
 <lightroom-app>
   <div class="px-4 bg-secondary rounded-lg">
     <Block>
-      <BlockTitle>Lightroom Package</BlockTitle>
+      <BlockTitle>
+        <div class="flex flex-row content-center">
+          Lightroom Preference <div
+            style="margin-left: 12px; width: 12px; height: 12px; border-radius: 50%; background-color: {isReceiverConnected &&
+            isTransmitConnected
+              ? '#00D248'
+              : '#fb2323'}"
+          />
+        </div>
+      </BlockTitle>
       <BlockBody>
-        Receiver connected: {isReceiverConnected}<br />
-        Transmit connected: {isTransmitConnected}<br />
+        Two-way connection status : {isReceiverConnected && isTransmitConnected
+          ? "Connected"
+          : "Connecting"}
+      </BlockBody>
+      <BlockBody>
+        Package connected: {isReceiverConnected}<br />
+        Lightroom connected: {isTransmitConnected}<br />
       </BlockBody>
       <MeltCombo title="Message que timeout" bind:value={messageQueTimeout} />
     </Block>
