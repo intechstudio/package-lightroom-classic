@@ -3,3 +3,4 @@ import ImagePropertyAction from "./ImagePropertyAction.svelte";
 import ViewControlAction from "./ViewControlAction.svelte";
 import DevelopControlAction from "./DevelopControlAction.svelte";
 import ShowViewAction from "./ShowViewAction.svelte";
+import OverlayControlAction from "./OverlayControlAction.svelte";
