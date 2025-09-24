@@ -347,7 +347,6 @@ exports.addMessagePort = async function (port, senderId) {
   } else if (senderId == "action-range") {
     actionPorts.add(port);
     port.on("message", (e) => {
-      console.log(`REQUEST MESSAGE, SENDING TO LIGHTROOM`, { data: e.data });
       if (e.data.type == "develop-range") {
         let request = `develop-range,${e.data.parameterName}\n`;
         transmitPort?.write(request);
