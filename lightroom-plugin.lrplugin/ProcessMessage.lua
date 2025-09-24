@@ -41,6 +41,9 @@ function handleMessage(message, senderSocket)
   if command == nil then
     command = message
   end
+  if (message:match("^1") ~= nil) then -- ping message
+    return
+  end
   logger:trace('COMMAND ' .. command)
   if command == "rating" then
     local ratingValue = message:match("^rating,%s*(.*)")
@@ -65,7 +68,7 @@ function handleMessage(message, senderSocket)
   elseif command == "color" then
     local colorValue = message:match("^color,%s*(.*)")
     LrSelection.setColorLabel(colorValue)
-    sendCurrentActivePhoto(senderSocket);
+    sendCurrentActivePhoto(senderSocket)
   elseif command == "next-photo" then
     LrSelection.nextPhoto()
     sendCurrentActivePhoto(senderSocket);
@@ -78,10 +81,14 @@ function handleMessage(message, senderSocket)
     LrApplicationView.switchToModule("develop")
     local nextValue = tonumber(parameterValue)
     if isRelative == "1" then
-      local currentValue = LrDevelopController.getValue(parameterName);
+      local currentValue = LrDevelopController.getValue(parameterName)
       nextValue = nextValue + currentValue
     end
     LrDevelopController.setValue(parameterName, tonumber(nextValue))
+  elseif command == "develop-range" then
+    local parameterName = message:match("^develop%-range,%s*(.*)")
+    local rangeMin, rangeMax = LrDevelopController.getRange(parameterName)
+    senderSocket:send('{"type":"range-result","name":"' .. parameterName .. '","min":' .. rangeMin .. ',"max":' .. rangeMax .. '}\n')
   elseif command == "remove" then
     local parameterName, parameterValue = message:match("^remove,%s*(.*),%s*(.*)")
     if parameterName == "size" then

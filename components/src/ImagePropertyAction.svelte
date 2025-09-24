@@ -43,7 +43,7 @@
       const match = config.script.match(regex);
       if (match) {
         parameterCode = match[1] ?? "rating";
-        parameterValue = match[2] ?? "val";
+        parameterValue = match[2] ?? "";
         isInitialized = true;
       }
     }

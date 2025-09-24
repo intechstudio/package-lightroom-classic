@@ -27,6 +27,8 @@ let isLightroomActive = false;
 
 let packageShutDown = false;
 
+let actionPorts = new Set();
+
 function sendNextPhotosBatch() {
   /*let dataString = "{";
   let isFirst = true;
@@ -183,6 +185,12 @@ function handlePortMessage(data) {
           script,
         });
       }
+      if (message.type == "range-result") {
+        console.log({ message });
+        actionPorts.forEach((e) => {
+          e.postMessage(message);
+        });
+      }
     } catch (error) {
       console.error(error);
     }
@@ -242,7 +250,7 @@ exports.loadPackage = async function (gridController, persistedData) {
     short: "xlrdc",
     displayName: "Develop Control",
     defaultLua:
-      'gps("package-lightroom-classic", "develop", "Temperature", val, 0)',
+      'gps("package-lightroom-classic", "develop", "Temperature", self:get_auto_value(), self:get_auto_mode())',
     actionComponent: "develop-control-action",
   });
 
@@ -256,7 +264,8 @@ exports.loadPackage = async function (gridController, persistedData) {
   createLightroomAction({
     short: "xlroc",
     displayName: "Control Overlay",
-    defaultLua: 'gps("package-lightroom-classic", "control-overlay", val)',
+    defaultLua:
+      'gps("package-lightroom-classic", "control-overlay", self:get_auto_value())',
     actionComponent: "overlay-control-action",
   });
 
@@ -290,6 +299,8 @@ exports.unloadPackage = async function () {
       type: "unsubscribe",
     },
   });
+  preferenceMessagePort?.close();
+  actionPorts.forEach((e) => e.close());
 };
 
 exports.addMessagePort = async function (port, senderId) {
@@ -333,6 +344,19 @@ exports.addMessagePort = async function (port, senderId) {
     });
     port.start();
     notifyStatusChange();
+  } else if (senderId == "action-range") {
+    actionPorts.add(port);
+    port.on("message", (e) => {
+      console.log(`REQUEST MESSAGE, SENDING TO LIGHTROOM`, { data: e.data });
+      if (e.data.type == "develop-range") {
+        let request = `develop-range,${e.data.parameterName}\n`;
+        transmitPort?.write(request);
+      }
+    });
+    port.on("close", () => {
+      actionPorts.delete(port);
+    });
+    port.start();
   }
 };
 
@@ -358,8 +382,7 @@ exports.sendMessage = async function (args) {
       if (!watchForActiveWindow) {
         controller.sendMessageToEditor({
           type: "show-message",
-          message:
-            "Lightroom focus must be active for spacebar shortcut to work. Enable it in Lightroom Preference!",
+          message: `Lightroom focus must be active for ${messageGroupId} shortcut to work. Enable it in Lightroom Preference!`,
           messageType: "fail",
         });
         return;

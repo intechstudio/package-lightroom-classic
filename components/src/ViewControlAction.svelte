@@ -74,9 +74,8 @@
         { info: "Remove Tool", value: "goto-remove" },
         { info: "Masking Tool", value: "goto-mask" },
         { info: "Crop Tool", value: "goto-crop" },
-        // TODO: implement Export/Import via keyboard shortcuts (no API available)
-        // { info: "Export", value: "export" },
-        // { info: "Import", value: "import" },
+        { info: "Export", value: "export" },
+        { info: "Import", value: "import" },
       ]}
     />
   </div>

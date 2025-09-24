@@ -17,7 +17,7 @@
       currentCodeValue = config.script;
       const match = config.script.match(regex);
       if (match) {
-        controlValue = match[1] ?? "val";
+        controlValue = match[1] ?? "self:get_auto_value()";
         isInitialized = true;
       }
     }
