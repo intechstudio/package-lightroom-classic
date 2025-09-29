@@ -29,7 +29,7 @@
       const match = config.script.match(regex);
       if (match) {
         parameterCode = match[1] ?? "Temperature";
-        parameterValue = match[2] ?? "val";
+        parameterValue = match[2] ?? "self:get_auto_value()";
         isRelativeMode = match[3];
         isInitialized = true;
       }
@@ -37,8 +37,9 @@
     if (isMinimalistMode !== minimalist) {
       isMinimalistMode = minimalist;
       if (minimalist) {
-        parameterValue = "self:get_auto_value()";
         isRelativeMode = "self:get_auto_mode()";
+      } else {
+        isRelativeMode = "0";
       }
     }
   }
@@ -118,6 +119,9 @@
   {#if !isMinimalistMode}<MeltCheckbox
       target={isRelativeMode == "1"}
       title={"Relative Mode"}
+      on:change={(e) => {
+        isRelativeMode = e.detail ? "1" : "0";
+      }}
     />{/if}
   <p class="pt-2">Current range: {currentRange}</p>
 </develop-control>

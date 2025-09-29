@@ -1,6 +1,6 @@
 {
   "name": "package-lightroom-classic",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Lightroom Package",
   "main": "index.js",
   "scripts": {
