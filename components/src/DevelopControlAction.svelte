@@ -30,7 +30,13 @@
       if (match) {
         parameterCode = match[1] ?? "Temperature";
         parameterValue = match[2] ?? "self:get_auto_value()";
-        isRelativeMode = match[3];
+        isRelativeMode = match[3] == 1 ? "1" : "0";
+        if (!isInitialized) {
+          isMinimalistMode = minimalist;
+          if (minimalist) {
+            isRelativeMode = "self:get_auto_mode()";
+          }
+        }
         isInitialized = true;
       }
     }
